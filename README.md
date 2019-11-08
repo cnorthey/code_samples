@@ -13,7 +13,7 @@ A series of scripts that build a synthetic voice using the Festival Speech Synth
 
 ## Java samples
 
-A program that models the interactions between preditor and prey species in a two-dimentional landscape. Populations are modeled using partial differential equations that simulate birth and death rates over time based on configurable starting conditions. The purpose of this project was to practice clean coding habits such as object-oriented design, modularity, good unit testing coverage, and self-documenting code.
+An application that models the interactions between preditor and prey species in a two-dimentional landscape. Populations are modeled using partial differential equations that simulate birth and death rates over time based on configurable starting conditions. The purpose of this project was to practice clean coding habits such as object-oriented design, modularity, good unit testing coverage, and self-documenting code. This was a group project, so we also practiced collaborative development techniques and pair programming.
 
 
 ## Python samples
