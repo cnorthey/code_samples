@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+This is an ANT script for automated building, running, and
+testing of the PopulationSimulation Java package. By default,
+it will build and run the PopulationSimulation main class
+using default values for parameters.
+-->
+
+<project name="ps_project2" default="run-default" basedir=".">
+
+  <description>
+    Automated build, run, and testing script for PopulationSimulation
+  </description>
+
+  <!-- sets main (non-testing) classpath -->
+  <path id="classpath">
+    <pathelement location="build/classes"/>
+    <pathelement location="build/test/classes"/>
+    <fileset dir=".">
+      <include name="*.jar"/>
+      <exclude name="ant-junit-1.6.5.jar"/>
+    </fileset>
+  </path>
+
+  <!-- inlcude location of ANT JUnit tools for DICE machines -->
+  <path id="classpath.ant.junit">
+
+    <fileset dir=".">
+      <include name="junit-4.10.jar"/>
+      <include name="ant-junit-1.6.5.jar"/>
+    </fileset>
+
+  </path>
+
+  <taskdef name="junit"
+	   classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+    <classpath refid="classpath.ant.junit"/>
+  </taskdef>
+
+  <taskdef name="junitreport"
+	   classname="org.apache.tools.ant.taskdefs.optional.junit.XMLResultAggregator">
+    <classpath refid="classpath.ant.junit"/>
+  </taskdef>
+
+  <!-- creates build, output, and test directories -->
+	<target name="init" description="cleans and creates directories">
+
+		<delete dir="outputPPM"/>
+		<delete dir="build"/>
+
+		 <mkdir dir="outputPPM"/>
+		 <mkdir dir="outputPPM/haresPPM"/>
+		 <mkdir dir="outputPPM/pumasPPM"/>
+
+		 <mkdir dir="build"/>
+		 <mkdir dir="build/classes"/>
+
+	</target>
+
+  <!-- builds all classes in PopulationSimulation package -->
+	<target name="build" depends="init" description="builds all classes">
+
+		<javac srcdir="src" destdir="build/classes" includeantruntime="false">
+			<include name="**/*.java"/>
+		</javac>
+
+	</target>
+
+  <!-- bundles built code into JAR -->
+	<target name="jar" depends="build" description="bundles package into JAR">
+		<jar destfile="build/lib/PopulationSimulation.jar"
+	 		basedir="build/classes"/>
+
+	</target>
+
+  <!-- runs PopulationSimulation with default values for all params-->
+	<target name="run-default" depends="jar" description="runs with default values">
+
+    <java classname="PopulationSimulation">
+			<arg value="./data/islands.dat"/>
+			<arg value="0.08"/>
+			<arg value="0.04"/>
+			<arg value="0.02"/>
+			<arg value="0.06"/>
+			<arg value="0.2"/>
+			<arg value="0.2"/>
+			<arg value="0.4"/>
+			<arg value="50"/>
+			<classpath>
+				<pathelement location="build/classes"/>
+			</classpath>
+		</java>
+
+	</target>
+
+  <!-- runs PopulationSimulation with custom values for params
+    e.g. ant run-custom -DmapFilePath="./data/sample.dat" -Dr=0.08 -Da=0.04
+                        -Db=0.02 -Dm=0.06 -Dk=0.2 -Dl=0.2 -DdeltaT=0.4 -DT=50
+  -->
+	<target name="run-custom" depends="jar" description="runs with custom values">
+
+      <java classname="PopulationSimulation">
+				<arg value="${mapFilePath}"/>
+				<arg value="${r}"/>
+				<arg value="${a}"/>
+				<arg value="${b}"/>
+				<arg value="${m}"/>
+				<arg value="${k}"/>
+				<arg value="${l}"/>
+				<arg value="${deltaT}"/>
+				<arg value="${T}"/>
+				<classpath>
+					<pathelement location="build/classes"/>
+				</classpath>
+			</java>
+
+  </target>
+
+  <!-- builds test class PopulationSimulationTests -->
+  <target name="build-test" depends="build" description="builds test class">
+
+    <mkdir dir="build/test/classes"/>
+    <javac srcdir="test" destdir="build/test/classes" includeantruntime="false">
+      <include name="**/*.java"/>
+      <classpath>
+        <pathelement location="build/classes"/>
+        <fileset dir=".">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+    </javac>
+
+	</target>
+
+  <!-- runs all tests in the test class PopulationSimulationTests
+       using a cool ANT task for JUnit (defined above). Test results
+       are stored in an XML file in ./build/test/xml-->
+  <target name="test" depends="build-test" description="run tests">
+
+    <mkdir dir="build/test/xml"/>
+    <junit printsummary="yes" haltonfailure="no">
+      <classpath>
+        <path refid="classpath"/>
+      </classpath>
+      <formatter type="xml"/>
+      <batchtest fork="yes" todir="build/test/xml">
+        <fileset dir="test">
+          <include name="**/*Tests.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+
+  </target>
+
+  <!-- makes nice HTML pages from test XML results using another nice
+       ANT task for JUnit (also defined above) -->
+  <target name="test-report" depends="test" description="creates HTML files from test reports">
+
+    <mkdir dir="build/test/html"/>
+    <junitreport todir="build/test/xml">
+      <fileset dir="build/test/xml">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report todir="build/test/html"/>
+    </junitreport>
+
+  </target>
+
+  <!-- deletes directories created during build/run/testing -->
+  <target name="clean" description="deletes files created during build/test/running">
+
+    <delete dir="outputPPM"/>
+    <delete dir="build"/>
+
+  </target>
+
+</project>
